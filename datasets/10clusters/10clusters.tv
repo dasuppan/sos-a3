@@ -1,0 +1,14 @@
+$TYPE template
+$XDIM 7
+$YDIM 850
+$VEC_DIM 10
+1 comp_1
+2 comp_2
+3 comp_3
+4 comp_4
+5 comp_5
+6 comp_6
+7 comp_7
+8 comp_8
+9 comp_9
+10 comp_10
