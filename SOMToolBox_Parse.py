@@ -21,11 +21,24 @@ class SOMToolBox_Parse:
         df = {}
         if self.filename[-3:len(self.filename)] == '.gz':
             with gzip.open(self.filename, 'rb') as file:
-                df = self._read_unit_file_to_df(df, file)
+                df = self._read_unit_file_to_df(df, file, False)
 
         else:
             with open(self.filename, 'rb') as file:
-                df = self._read_unit_file_to_df(df, file)
+                df = self._read_unit_file_to_df(df, file, False)
+
+        file.close()
+        return df
+
+    def read_own_unit_file(self,):
+        df = {}
+        if self.filename[-3:len(self.filename)] == '.gz':
+            with gzip.open(self.filename, 'rb') as file:
+                df = self._read_unit_file_to_df(df, file, True)
+
+        else:
+            with open(self.filename, 'rb') as file:
+                df = self._read_unit_file_to_df(df, file, True)
 
         file.close()
 
@@ -95,8 +108,8 @@ class SOMToolBox_Parse:
         elif splitted[0] == '$MAPPED_VECS_DIST':     curr_unit['mapped_vecs_dist']    = list(map(float,splitted[1:]))
 
 
-    def _read_unit_file_to_df(self, df, file):
-        curr_unit = { "mapped_vecs" : []}
+    def _read_unit_file_to_df(self, df, file, has_vector_coords):
+        curr_unit = { "mapped_vecs" : [], "mapped_vecs_id" : []}
         start = True
         for byte in file:
             line = byte.decode('UTF-8')
@@ -104,10 +117,13 @@ class SOMToolBox_Parse:
                 if not start:
                     df[(curr_unit["pos_x"],curr_unit["pos_y"])] = curr_unit
                 start = False
-                curr_unit = { "mapped_vecs" : []}
+                curr_unit = { "mapped_vecs" : [], "mapped_vecs_id" : []}
 
             if line.startswith('$'):
                 self._parse_unit_file_metadata(line, curr_unit)
             else:
-                curr_unit["mapped_vecs"].append(int(line))
+                if has_vector_coords:
+                    curr_unit["mapped_vecs"].append(list(map(float,line.split(" "))))
+                else:
+                    curr_unit["mapped_vecs_id"].append(int(line))
         return df
